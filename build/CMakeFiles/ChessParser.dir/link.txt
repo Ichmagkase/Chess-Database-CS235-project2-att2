@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/ChessParser.dir/link.d CMakeFiles/ChessParser.dir/main.c.o -o ChessParser
