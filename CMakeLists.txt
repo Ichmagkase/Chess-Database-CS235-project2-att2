@@ -6,5 +6,5 @@ add_executable(ChessParser)
 
 target_sources(ChessParser
   PRIVATE
-    main.c
+    src/main.c
 )

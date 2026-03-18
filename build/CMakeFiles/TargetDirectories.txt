@@ -1,3 +1,0 @@
-/home/kase/dev/school/database/Chess-Database-CS235-project2-att2/build/CMakeFiles/ChessParser.dir
-/home/kase/dev/school/database/Chess-Database-CS235-project2-att2/build/CMakeFiles/edit_cache.dir
-/home/kase/dev/school/database/Chess-Database-CS235-project2-att2/build/CMakeFiles/rebuild_cache.dir
