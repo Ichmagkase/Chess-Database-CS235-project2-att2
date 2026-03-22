@@ -9,6 +9,20 @@
 
 #define DATA_DIR_NAME "data"
 
+struct GameState {
+  int game_number;
+  int ply_number;
+  char piece;
+  char *origin_square;
+  char *dest_square;
+  char captured_piece;
+  char promotion;
+  int is_castle;
+  int is_check;
+  int is_checkmate;
+  char *fen;
+};
+
 FILE *verify(FILE *f) {
   if (f == NULL) {
     perror("fopen\n");
@@ -24,6 +38,14 @@ void check_error(int status, char *description) {
   }
 }
 
+void reset_game(struct GameState *game_state) {}
+
+void update_state(struct GameState *game_state, char *token) {
+  // TODO: Parse the token in here. Populate or update game_state struct. Apply
+  // SANs to FENs
+}
+
+// NOTE: Claude wrote this code ...
 static int rm_entry(const char *path, const struct stat *sb, int typeflag,
                     struct FTW *ftwbuf) {
   return (typeflag == FTW_DP) ? rmdir(path) : unlink(path);
@@ -39,6 +61,7 @@ void reset_data_dir(void) {
     exit(EXIT_FAILURE);
   }
 }
+// NOTE: End AI code
 
 int main(void) {
   int status;
@@ -87,27 +110,39 @@ int main(void) {
   char *token;
   char key[256];
   char value[256];
+  struct GameState game;
 
   while ((line_len = getline(&line, &size, chess_data)) != -1) {
     if (regexec(&tag_line, line, 0, NULL, 0) == 0) {
-      sscanf(line, "[%63s \"%127[^\"]\"]", key, value);
+      sscanf(line, "[%255s \"%255[^\"]\"]", key, value);
       fprintf(metadata_tags_data, "%d,%s,%s\n", game_number, key, value);
+      // TODO: if tag_line is a FEN, add it to the struct
+      // GameState game -> fen
+
     } else {
       char *copy = strdup(line);
       token = strtok(copy, " \n\t\r");
+
       while (token != NULL) {
-        // if (regexec(&move_number, token, 0, NULL, 0) == 0)
-        //   printf("%d: move number\n%s\n\n", game_number, token);
+        // NOTE: Everything under this while is parsing moves out of a game
         if (regexec(&san, token, 0, NULL, 0) == 0) {
-          fprintf(move_data, "%d,%d,%s,%s,%s\n", game_number, ply_number, "p",
-                  "fen", token);
+
+          update_state(&game, token);
+
+          fprintf(move_data, "%d,%d,%c,%s,%s,%c,%c,%d,%d,%d,%s\n",
+                  game.game_number, game.ply_number, game.piece,
+                  game.origin_square, game.dest_square, game.captured_piece,
+                  game.promotion, game.is_castle, game.is_check,
+                  game.is_checkmate, game.fen);
           ply_number++;
         } else if (regexec(&result, token, 0, NULL, 0) == 0) {
           fprintf(game_data, "%d,%s,%d\n", game_number, token, ply_number);
           game_number++;
           ply_number = 0;
+          // Zero struct GameState
+          memset(&game, 0, sizeof(struct GameState));
         } else {
-          printf("Skipping:\n%s\n\n", token);
+          printf("Skipping/Ignoring:\n%s\n\n", token);
         }
         token = strtok(NULL, " \n\t\r");
       }

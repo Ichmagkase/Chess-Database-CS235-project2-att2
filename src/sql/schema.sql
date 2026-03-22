@@ -9,8 +9,14 @@ CREATE TABLE Moves(
   game_number INT NOT NULL,
   ply_number INT NOT NULL,
   piece CHAR(1),
-  previous_san VARCHAR(32),
-  san VARCHAR(32),
+  origin_square CHAR(2),
+  dest_square CHAR(2),
+  captured_piece CHAR(1),
+  promotion CHAR(1),
+  is_castle TINYINT(1) DEFAULT 0,
+  is_check TINYINT(1) DEFAULT 0,
+  is_checkmate TINYINT(1) DEFAULT 0,
+  fen VARCHAR(255),
   PRIMARY KEY(
     game_number,
     ply_number
